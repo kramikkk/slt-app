@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="status_bar_height">24dp</dimen> <!-- Change 24dp to the actual height of your status bar -->
+    <dimen name="navigation_bar_height">48dp</dimen> <!-- Change 48dp to the actual height of your navigation bar -->
+    <dimen name="bottom_sheet_text_size">18sp</dimen>
+</resources>

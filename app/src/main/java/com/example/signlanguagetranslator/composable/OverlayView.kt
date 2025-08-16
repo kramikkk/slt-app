@@ -1,0 +1,138 @@
+package com.example.signlanguagetranslator.composable
+
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.util.AttributeSet
+import android.view.View
+import androidx.core.content.ContextCompat
+import com.example.signlanguagetranslator.R
+import com.google.mediapipe.tasks.vision.core.RunningMode
+import com.google.mediapipe.tasks.vision.gesturerecognizer.GestureRecognizerResult
+import com.google.mediapipe.tasks.vision.handlandmarker.HandLandmarker
+import kotlin.math.max
+import kotlin.math.min
+
+class OverlayView(context: Context?, attrs: AttributeSet?) :
+    View(context, attrs) {
+
+    private var results: GestureRecognizerResult? = null
+    private var linePaint = Paint()
+    private var pointPaint = Paint()
+    private var textPaint = Paint()
+
+    private var scaleFactor: Float = 2f
+    private var imageWidth: Int = 1
+    private var imageHeight: Int = 1
+
+    init {
+        initPaints()
+    }
+
+    fun clear() {
+        results = null
+        linePaint.reset()
+        pointPaint.reset()
+        invalidate()
+        initPaints()
+    }
+
+    private fun initPaints() {
+        linePaint.color =
+            ContextCompat.getColor(context!!, R.color.teal_700) //edit this color
+        linePaint.strokeWidth = LANDMARK_STROKE_WIDTH
+        linePaint.style = Paint.Style.STROKE
+
+        pointPaint.color = Color.YELLOW
+        pointPaint.strokeWidth = LANDMARK_STROKE_WIDTH
+        pointPaint.style = Paint.Style.FILL
+
+        textPaint.color = Color.WHITE
+        textPaint.textSize = 80f // Adjust text size as needed
+    }
+
+    override fun draw(canvas: Canvas) {
+        super.draw(canvas)
+        results?.let { gestureRecognizerResult ->
+            for (handIndex in 0 until min(gestureRecognizerResult.landmarks().size, 2)) {
+                val landmarks = gestureRecognizerResult.landmarks()[handIndex]
+                for (landmark in landmarks) {
+                    canvas.drawPoint(
+                        landmark.x() * imageWidth * scaleFactor,
+                        landmark.y() * imageHeight * scaleFactor,
+                        pointPaint
+                    )
+                }
+
+                HandLandmarker.HAND_CONNECTIONS.forEach { connection ->
+                    val start = landmarks.get(connection.start())
+                    val end = landmarks.get(connection.end())
+                    canvas.drawLine(
+                        start.x() * imageWidth * scaleFactor,
+                        start.y() * imageHeight * scaleFactor,
+                        end.x() * imageWidth * scaleFactor,
+                        end.y() * imageHeight * scaleFactor,
+                        linePaint
+                    )
+                }
+
+                // Draw gesture name and score
+                val gestureCategories = gestureRecognizerResult.gestures()[handIndex]
+                val gestureCategory = gestureCategories.maxByOrNull { it.score() }
+
+                // Check if gestureCategory is not null and its category name is not "none" or blank
+                if (gestureCategory?.categoryName()?.isNotBlank() == true && gestureCategory?.categoryName() != "none") {
+                    val text = "${gestureCategory.categoryName()}: ${"%.2f".format(gestureCategory.score() ?: 0.0)}"
+
+                    // Adjust text position here
+                    val textX = (width - textPaint.measureText(text)) / 2 // Center horizontally
+                    val textY = if (handIndex == 0) {
+                        height - 100f // Near the bottom of the screen for the first hand
+                    } else {
+                        height - 130f + textPaint.textSize * (handIndex + 1) // Place below the previous hand's text
+                    }
+
+                    canvas.drawText(
+                        text,
+                        textX,
+                        textY,
+                        textPaint
+                    )
+                }
+            }
+        }
+
+    }
+
+
+    fun setResults(
+        gestureRecognizerResult: GestureRecognizerResult,
+        imageHeight: Int,
+        imageWidth: Int,
+        runningMode: RunningMode = RunningMode.IMAGE,
+    ) {
+        results = gestureRecognizerResult
+
+        this.imageHeight = imageHeight
+        this.imageWidth = imageWidth
+
+        scaleFactor = when (runningMode) {
+            RunningMode.IMAGE,
+            RunningMode.VIDEO -> {
+                min(width * 1f / imageWidth, height * 1f / imageHeight)
+            }
+            RunningMode.LIVE_STREAM -> {
+                // PreviewView is in FILL_START mode. So we need to scale up the
+                // landmarks to match with the size that the captured images will be
+                // displayed.
+                max(width * 1f / imageWidth, height * 1f / imageHeight)
+            }
+        }
+        invalidate()
+    }
+
+    companion object {
+        private const val LANDMARK_STROKE_WIDTH = 8F
+    }
+}
