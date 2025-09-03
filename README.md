@@ -1,4 +1,10 @@
+<p align="center">
+  <img src="app/src/main/res/drawable/sltlogo.png" alt="Screenshot 1" width="150"/>
+</p>
+
+
 # 🖐️ Sign Language Translator App
+
 _A real-time translator bridging communication through technology_
 
 ## 📖 Overview
@@ -31,7 +37,13 @@ It enables seamless two-way communication between sign language users and non-si
 ---
 
 ## 📸 Screenshots / Demo
-_TODO: Add screenshot_
+<p align="center">
+  <img src="docs/images/home.jpeg" alt="hom-ss" width="150"/>
+  <img src="docs/images/sign-to-text.jpeg" alt="stt-ss" width="150"/>
+  <img src="docs/images/text-to-sign.jpeg" alt="tts-ss" width="150"/>
+  <img src="docs/images/dictionary.jpeg" alt="dic-ss" width="150"/>
+  <img src="docs/images/settings.jpeg" alt="set-ss" width="150"/>
+</p>
 
 ---
 
