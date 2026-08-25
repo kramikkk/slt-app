@@ -5,6 +5,10 @@
 
 # 🖐️ Sign Language Translator App
 
+<p align="center">
+  <img src="docs/images/slt-cover-photo.jpeg" alt="Sign Language Translator app" width="100%"/>
+</p>
+
 _A real-time translator bridging communication through technology_
 
 ## 📖 Overview
@@ -49,4 +53,3 @@ It enables seamless two-way communication between sign language users and non-si
 
 ## 📜 License
 This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
-
